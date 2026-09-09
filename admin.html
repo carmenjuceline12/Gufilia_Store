@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gufilia.Store — Painel de administração</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,450;0,9..144,600;1,9..144,450&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#F7F4EF; --beige:#D8C8B2; --black:#2B2B2B; --gold:#B89B5E; --olive:#7A7F47;
+    --white:#FFFDF9; --danger:#a1583f;
+    --ease: cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ivory); color:var(--black); font-family:'Manrope',sans-serif; font-size:15px;}
+  h1,h2,h3,.serif{font-family:'Fraunces',serif; font-weight:450; margin:0;}
+  button{font-family:inherit; cursor:pointer;}
+  input,textarea,select{font-family:inherit; font-size:.9rem;}
+
+  /* ---------- login ---------- */
+  #loginScreen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:18px; padding:20px;
+  }
+  #loginScreen h1{font-size:1.8rem;}
+  #loginScreen p{color:#5c5c54; font-size:.9rem; max-width:34ch; text-align:center;}
+  .login-box{
+    background:var(--white); padding:30px; border-radius:6px; width:100%; max-width:340px;
+    box-shadow:0 20px 40px -24px rgba(43,43,43,.4); display:flex; flex-direction:column; gap:14px;
+  }
+  .login-box input{padding:12px 14px; border:1px solid rgba(43,43,43,.2); border-radius:3px; width:100%;}
+  .login-box button{padding:12px; background:var(--black); color:var(--ivory); border:none; border-radius:3px; font-weight:600;}
+  .login-box button:hover{background:var(--olive);}
+  .login-error{color:var(--danger); font-size:.82rem; display:none;}
+
+  /* ---------- shell ---------- */
+  #app{display:none;}
+  #app.show{display:block;}
+  header{
+    background:var(--black); color:var(--ivory);
+    padding:16px 26px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    position:sticky; top:0; z-index:20;
+  }
+  header .logo{font-family:'Fraunces',serif; font-size:1.2rem;}
+  header .logo em{color:var(--gold); font-style:italic;}
+  .header-actions{display:flex; gap:10px; flex-wrap:wrap;}
+  .hbtn{
+    padding:9px 15px; border-radius:3px; font-size:.8rem; font-weight:600; border:1px solid rgba(247,244,239,.3); color:var(--ivory); background:transparent;
+  }
+  .hbtn:hover{background:rgba(247,244,239,.12);}
+  .hbtn.primary{background:var(--olive); border-color:var(--olive);}
+  .hbtn.primary:hover{background:#636736;}
+  .hbtn.gold{background:var(--gold); border-color:var(--gold); color:var(--white);}
+  .hbtn.gold:hover{background:#a1834c;}
+
+  .banner{
+    background:#fff3d6; border-bottom:1px solid #eadcb2; padding:12px 26px; font-size:.82rem; color:#6b5a2a;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:space-between;
+  }
+
+  .tabs{
+    display:flex; gap:4px; padding:16px 26px 0; flex-wrap:wrap; border-bottom:1px solid rgba(43,43,43,.12); background:var(--ivory);
+    position:sticky; top:60px; z-index:15;
+  }
+  .tab-btn{
+    padding:11px 18px; font-size:.86rem; font-weight:600; border-radius:4px 4px 0 0;
+    background:transparent; border:none; color:#5c5c54;
+  }
+  .tab-btn.active{background:var(--white); color:var(--black); box-shadow:0 -1px 0 var(--white);}
+
+  main{padding:28px 26px 80px; max-width:1080px; margin:0 auto;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:var(--white); border-radius:6px; padding:24px; margin-bottom:22px;
+    box-shadow:0 10px 26px -20px rgba(43,43,43,.3);
+  }
+  .card h2{font-size:1.15rem; margin-bottom:4px;}
+  .card .hint{font-size:.8rem; color:#7a7a70; margin-bottom:18px;}
+
+  .field-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media(max-width:600px){.field-grid{grid-template-columns:1fr;}}
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px;}
+  .field.full{grid-column:1/-1;}
+  .field label{font-size:.78rem; font-weight:600; color:#4a4a44;}
+  .field input, .field textarea, .field select{
+    padding:10px 12px; border:1px solid rgba(43,43,43,.2); border-radius:3px; background:var(--ivory);
+  }
+  .field textarea{resize:vertical; min-height:70px;}
+
+  .btn-add{
+    padding:11px 20px; background:var(--black); color:var(--ivory); border:none; border-radius:3px; font-weight:600; font-size:.85rem;
+  }
+  .btn-add:hover{background:var(--olive);}
+
+  .list{display:flex; flex-direction:column; gap:10px;}
+  .row{
+    display:flex; align-items:center; gap:14px; padding:12px; border:1px solid rgba(43,43,43,.1); border-radius:4px;
+    background:var(--ivory);
+  }
+  .row img{width:44px; height:56px; object-fit:cover; border-radius:2px; background:var(--beige); flex-shrink:0;}
+  .row .row-main{flex:1; min-width:0;}
+  .row .row-title{font-weight:700; font-size:.88rem;}
+  .row .row-sub{font-size:.78rem; color:#7a7a70;}
+  .row-actions{display:flex; gap:8px; flex-shrink:0;}
+  .icon-btn{
+    width:32px; height:32px; border-radius:50%; border:1px solid rgba(43,43,43,.2); background:var(--white);
+    display:flex; align-items:center; justify-content:center; font-size:.85rem;
+  }
+  .icon-btn.del{color:var(--danger); border-color:rgba(161,88,63,.35);}
+  .icon-btn:hover{background:rgba(43,43,43,.06);}
+
+  .empty-hint{font-size:.85rem; color:#7a7a70; padding:14px 0;}
+
+  .toast{
+    position:fixed; left:50%; bottom:26px; transform:translate(-50%,20px);
+    background:var(--black); color:var(--ivory); padding:12px 22px; border-radius:999px; font-size:.85rem;
+    opacity:0; transition:all .3s var(--ease); z-index:70; pointer-events:none;
+  }
+  .toast.show{opacity:1; transform:translate(-50%,0);}
+
+  #importInput{display:none;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <h1>Gufilia<em style="color:#B89B5E;font-style:italic">.</em>Store — Administração</h1>
+  <p>Área reservada à Carmen. Introduza a palavra-passe para gerir produtos, galeria, feedbacks e definições do site.</p>
+  <div class="login-box">
+    <input type="password" id="pwInput" placeholder="Palavra-passe">
+    <p class="login-error" id="pwError">Palavra-passe incorreta. Tente novamente.</p>
+    <button id="pwSubmit">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <span class="logo">Gufilia<em>.</em>Store — <span style="font-family:'Manrope',sans-serif;font-weight:600;font-size:.85rem;">Administração</span></span>
+    <div class="header-actions">
+      <a class="hbtn" href="index.html" target="_blank">Ver site</a>
+      <button class="hbtn" id="importBtn">Importar dados</button>
+      <input type="file" id="importInput" accept="application/json">
+      <button class="hbtn gold" id="exportBtn">Exportar data.json</button>
+      <button class="hbtn primary" id="saveBtn">Guardar alterações</button>
+    </div>
+  </header>
+
+  <div class="banner">
+    <span>As alterações guardadas aqui aparecem já no site <strong>neste navegador</strong>. Para ficarem visíveis para todas as clientes, clique em "Exportar data.json" e substitua o ficheiro no seu site publicado.</span>
+    <button class="hbtn" id="resetBtn" style="border-color:rgba(43,43,43,.2); color:#6b5a2a;">Repor predefinições</button>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="config">Configurações</button>
+    <button class="tab-btn" data-tab="produtos">Produtos</button>
+    <button class="tab-btn" data-tab="galeria">Galeria de clientes</button>
+    <button class="tab-btn" data-tab="feedbacks">Feedbacks</button>
+  </nav>
+
+  <main>
+
+    <!-- CONFIGURAÇÕES -->
+    <section class="panel active" id="panel-config">
+      <div class="card">
+        <h2>Contacto e redes sociais</h2>
+        <p class="hint">Estes dados aparecem no cabeçalho, rodapé e no botão de finalizar pedido.</p>
+        <div class="field-grid">
+          <div class="field"><label>Número de WhatsApp (com código do país, só dígitos)</label><input id="cfg-whatsapp"></div>
+          <div class="field"><label>Link da Shein (categoria ou loja)</label><input id="cfg-shein"></div>
+          <div class="field"><label>Link do Instagram</label><input id="cfg-insta"></div>
+          <div class="field"><label>Nome a mostrar do Instagram (ex: @gufilia_store)</label><input id="cfg-insta-label"></div>
+          <div class="field"><label>Link do Facebook</label><input id="cfg-fb"></div>
+          <div class="field"><label>Nome a mostrar do Facebook (ex: gufiliastore)</label><input id="cfg-fb-label"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Texto principal (topo do site)</h2>
+        <div class="field full"><label>Frase pequena acima do título</label><input id="cfg-eyebrow"></div>
+        <div class="field full"><label>Título principal</label><textarea id="cfg-title" rows="2"></textarea></div>
+        <div class="field full"><label>Texto de apoio</label><textarea id="cfg-lead" rows="3"></textarea></div>
+        <div class="field full"><label>Selo de confiança (ex: "+250 pedidos entregues em Maputo...")</label><input id="cfg-tag"></div>
+      </div>
+    </section>
+
+    <!-- PRODUTOS -->
+    <section class="panel" id="panel-produtos">
+      <div class="card">
+        <h2>Adicionar produto</h2>
+        <p class="hint">Preencha os campos e clique em "Adicionar produto". Depois clique em "Guardar alterações" no topo.</p>
+        <div class="field-grid">
+          <div class="field"><label>Nome</label><input id="p-name" placeholder="Ex: Batom líquido mate"></div>
+          <div class="field"><label>Preço (MT)</label><input id="p-price" type="number" min="0"></div>
+          <div class="field"><label>Categoria</label>
+            <select id="p-cat">
+              <option value="rosto">Rosto</option>
+              <option value="labios">Lábios</option>
+              <option value="pele">Cuidado de pele</option>
+              <option value="perfume">Perfumaria</option>
+            </select>
+          </div>
+          <div class="field"><label>Etiqueta (opcional, ex: Novo)</label><input id="p-badge" placeholder="Deixe vazio se não quiser"></div>
+          <div class="field full"><label>Link da foto</label><input id="p-img" placeholder="Cole aqui o link da imagem"></div>
+          <div class="field full"><label>Descrição curta</label><textarea id="p-desc" rows="2"></textarea></div>
+        </div>
+        <button class="btn-add" id="p-addBtn">Adicionar produto</button>
+      </div>
+      <div class="card">
+        <h2>Produtos atuais</h2>
+        <div class="list" id="p-list"></div>
+      </div>
+    </section>
+
+    <!-- GALERIA -->
+    <section class="panel" id="panel-galeria">
+      <div class="card">
+        <h2>Adicionar foto de cliente</h2>
+        <div class="field-grid">
+          <div class="field full"><label>Link da foto</label><input id="g-img" placeholder="Cole aqui o link da imagem"></div>
+          <div class="field">
+            <label>Tamanho na grelha</label>
+            <select id="g-tall">
+              <option value="false">Normal</option>
+              <option value="true">Alta (destaque)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-add" id="g-addBtn">Adicionar foto</button>
+      </div>
+      <div class="card">
+        <h2>Fotos atuais</h2>
+        <div class="list" id="g-list"></div>
+      </div>
+    </section>
+
+    <!-- FEEDBACKS -->
+    <section class="panel" id="panel-feedbacks">
+      <div class="card">
+        <h2>Adicionar feedback</h2>
+        <div class="field-grid">
+          <div class="field"><label>Nome da cliente</label><input id="f-name" placeholder="Ex: Ana M."></div>
+          <div class="field"><label>Descrição (ex: Cliente desde 2024)</label><input id="f-role"></div>
+          <div class="field full"><label>Texto do feedback</label><textarea id="f-text" rows="2"></textarea></div>
+        </div>
+        <button class="btn-add" id="f-addBtn">Adicionar feedback</button>
+      </div>
+      <div class="card">
+        <h2>Feedbacks atuais</h2>
+        <div class="list" id="f-list"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- PASSWORD ----------------
+   Carmen: troque o valor abaixo por uma palavra-passe à sua escolha.
+   Aviso: por ser um site estático, isto impede visitas casuais mas não é
+   uma segurança forte — não guarde aqui nada verdadeiramente confidencial. */
+const ADMIN_PASSWORD = "gufilia2026";
+
+const pwInput = document.getElementById("pwInput");
+const pwSubmit = document.getElementById("pwSubmit");
+const pwError = document.getElementById("pwError");
+
+function tryLogin(){
+  if(pwInput.value === ADMIN_PASSWORD){
+    sessionStorage.setItem("gufilia_admin_ok", "1");
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("app").classList.add("show");
+    initApp();
+  } else {
+    pwError.style.display = "block";
+  }
+}
+pwSubmit.addEventListener("click", tryLogin);
+pwInput.addEventListener("keydown", e=>{ if(e.key==="Enter") tryLogin(); });
+
+if(sessionStorage.getItem("gufilia_admin_ok") === "1"){
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("app").classList.add("show");
+  initApp();
+}
+
+/* ---------------- DEFAULT DATA (igual ao site) ---------------- */
+const DEFAULT_DATA = {
+  settings:{
+    whatsapp:"258876396010",
+    heroEyebrow:"Moda & cosméticos, curados para si",
+    heroTitle:"Peças escolhidas a dedo. Entrega combinada consigo.",
+    heroLead:"A Gufilia.Store junta o melhor da Shein com uma seleção própria de cosméticos, e trata cada pedido diretamente consigo, no WhatsApp — sem letras pequenas, sem surpresas no valor final.",
+    heroTag:"+250 pedidos entregues em Maputo com acompanhamento pessoal",
+    sheinUrl:"https://www.shein.com",
+    instagram:"https://instagram.com/gufilia_store", instagramLabel:"@gufilia_store",
+    facebook:"https://facebook.com/gufiliastore", facebookLabel:"gufiliastore"
+  },
+  products:[
+    { id:"p1", name:"Base líquida matte", price:850, cat:"rosto", img:"https://placehold.co/500x650/D8C8B2/2B2B2B?text=Base", badge:"Mais vendido", desc:"Cobertura média a alta, acabamento matte que dura o dia todo." },
+    { id:"p2", name:"Paleta de sombras nude", price:1200, cat:"rosto", img:"https://placehold.co/500x650/B89B5E/FFFDF9?text=Paleta", badge:"", desc:"12 tons neutros e versáteis, alta pigmentação." },
+    { id:"p3", name:"Batom líquido mate", price:450, cat:"labios", img:"https://placehold.co/500x650/7A7F47/FFFDF9?text=Batom", badge:"", desc:"Longa duração, não resseca os lábios." },
+    { id:"p4", name:"Gloss hidratante", price:380, cat:"labios", img:"https://placehold.co/500x650/D8C8B2/2B2B2B?text=Gloss", badge:"", desc:"Brilho intenso com efeito hidratante imediato." },
+    { id:"p5", name:"Sérum facial vitamina C", price:1450, cat:"pele", img:"https://placehold.co/500x650/2B2B2B/F7F4EF?text=S%C3%A9rum", badge:"Novo", desc:"Ilumina e uniformiza o tom de pele." },
+    { id:"p6", name:"Creme hidratante facial", price:980, cat:"pele", img:"https://placehold.co/500x650/B89B5E/FFFDF9?text=Creme", badge:"", desc:"Hidratação profunda, textura leve." },
+    { id:"p7", name:"Perfume floral 50ml", price:1600, cat:"perfume", img:"https://placehold.co/500x650/7A7F47/FFFDF9?text=Perfume", badge:"", desc:"Notas florais e amadeiradas, fixação longa." },
+    { id:"p8", name:"Máscara de cílios volume", price:520, cat:"rosto", img:"https://placehold.co/500x650/D8C8B2/2B2B2B?text=M%C3%A1scara", badge:"", desc:"Volume intenso sem grumos." }
+  ],
+  feedbacks:[
+    { name:"Ana M.", role:"Cliente desde 2024", text:"Pedido chegou exatamente como combinado no WhatsApp, sem surpresas no valor. Vou voltar a comprar." },
+    { name:"Salma J.", role:"Cliente em Maputo", text:"Atendimento muito atencioso, tiraram todas as minhas dúvidas antes de eu decidir. Adorei o batom!" },
+    { name:"Fátima C.", role:"Cliente recorrente", text:"A entrega foi rápida e o produto veio bem embalado. Recomendo a quem procura cosméticos de qualidade." },
+    { name:"Nilza P.", role:"Cliente desde 2023", text:"Já fiz três encomendas de roupa pela Shein com elas, sempre correu tudo bem do início ao fim." }
+  ],
+  gallery:[
+    { img:"https://placehold.co/400x520/D8C8B2/2B2B2B?text=Cliente+1", tall:true },
+    { img:"https://placehold.co/400x260/B89B5E/FFFDF9?text=Cliente+2", tall:false },
+    { img:"https://placehold.co/400x260/7A7F47/FFFDF9?text=Cliente+3", tall:false },
+    { img:"https://placehold.co/400x520/2B2B2B/F7F4EF?text=Cliente+4", tall:true },
+    { img:"https://placehold.co/400x260/D8C8B2/2B2B2B?text=Cliente+5", tall:false },
+    { img:"https://placehold.co/400x260/B89B5E/FFFDF9?text=Cliente+6", tall:false }
+  ]
+};
+
+let DATA = null;
+
+async function loadInitialData(){
+  const local = localStorage.getItem("gufilia_cms_data");
+  if(local){ try{ return JSON.parse(local); }catch(e){} }
+  try{
+    const res = await fetch("data.json", { cache:"no-store" });
+    if(res.ok) return await res.json();
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+
+async function initApp(){
+  DATA = await loadInitialData();
+  fillSettingsForm();
+  renderProductsList();
+  renderGalleryList();
+  renderFeedbacksList();
+}
+
+/* ---------------- TABS ---------------- */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+/* ---------------- TOAST ---------------- */
+let toastTimer;
+function showToast(text){
+  const t = document.getElementById("toast");
+  t.textContent = text;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+/* ---------------- SETTINGS ---------------- */
+function fillSettingsForm(){
+  const s = DATA.settings;
+  document.getElementById("cfg-whatsapp").value = s.whatsapp;
+  document.getElementById("cfg-shein").value = s.sheinUrl;
+  document.getElementById("cfg-insta").value = s.instagram;
+  document.getElementById("cfg-insta-label").value = s.instagramLabel;
+  document.getElementById("cfg-fb").value = s.facebook;
+  document.getElementById("cfg-fb-label").value = s.facebookLabel;
+  document.getElementById("cfg-eyebrow").value = s.heroEyebrow;
+  document.getElementById("cfg-title").value = s.heroTitle;
+  document.getElementById("cfg-lead").value = s.heroLead;
+  document.getElementById("cfg-tag").value = s.heroTag;
+}
+function collectSettingsForm(){
+  DATA.settings = {
+    whatsapp: document.getElementById("cfg-whatsapp").value.trim(),
+    sheinUrl: document.getElementById("cfg-shein").value.trim(),
+    instagram: document.getElementById("cfg-insta").value.trim(),
+    instagramLabel: document.getElementById("cfg-insta-label").value.trim(),
+    facebook: document.getElementById("cfg-fb").value.trim(),
+    facebookLabel: document.getElementById("cfg-fb-label").value.trim(),
+    heroEyebrow: document.getElementById("cfg-eyebrow").value.trim(),
+    heroTitle: document.getElementById("cfg-title").value.trim(),
+    heroLead: document.getElementById("cfg-lead").value.trim(),
+    heroTag: document.getElementById("cfg-tag").value.trim()
+  };
+}
+
+/* ---------------- PRODUCTS ---------------- */
+const catLabels = { rosto:"Rosto", labios:"Lábios", pele:"Cuidado de pele", perfume:"Perfumaria" };
+
+function renderProductsList(){
+  const list = document.getElementById("p-list");
+  list.innerHTML = "";
+  if(DATA.products.length === 0){ list.innerHTML = `<p class="empty-hint">Ainda não há produtos.</p>`; return; }
+  DATA.products.forEach(p=>{
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+      <img src="${p.img}" alt="">
+      <div class="row-main">
+        <div class="row-title">${p.name} ${p.badge ? `· <span style="color:#B89B5E">${p.badge}</span>` : ""}</div>
+        <div class="row-sub">${catLabels[p.cat]||p.cat} · ${Number(p.price).toLocaleString("pt-PT")} MT</div>
+      </div>
+      <div class="row-actions">
+        <button class="icon-btn del" data-id="${p.id}" title="Remover">✕</button>
+      </div>`;
+    list.appendChild(row);
+  });
+}
+document.getElementById("p-list").addEventListener("click", e=>{
+  const btn = e.target.closest(".icon-btn.del");
+  if(!btn) return;
+  DATA.products = DATA.products.filter(p=>p.id!==btn.dataset.id);
+  renderProductsList();
+});
+
+document.getElementById("p-addBtn").addEventListener("click", ()=>{
+  const name = document.getElementById("p-name").value.trim();
+  const price = parseFloat(document.getElementById("p-price").value);
+  const cat = document.getElementById("p-cat").value;
+  const badge = document.getElementById("p-badge").value.trim();
+  const img = document.getElementById("p-img").value.trim() || "https://placehold.co/500x650/D8C8B2/2B2B2B?text=Produto";
+  const desc = document.getElementById("p-desc").value.trim();
+
+  if(!name || isNaN(price)){ showToast("Preencha pelo menos o nome e o preço."); return; }
+
+  const id = "p" + Date.now();
+  DATA.products.push({ id, name, price, cat, badge, img, desc });
+  renderProductsList();
+  showToast("Produto adicionado. Não esqueça de guardar.");
+
+  ["p-name","p-price","p-badge","p-img","p-desc"].forEach(id=>document.getElementById(id).value = "");
+});
+
+/* ---------------- GALLERY ---------------- */
+function renderGalleryList(){
+  const list = document.getElementById("g-list");
+  list.innerHTML = "";
+  if(DATA.gallery.length === 0){ list.innerHTML = `<p class="empty-hint">Ainda não há fotos.</p>`; return; }
+  DATA.gallery.forEach((g,i)=>{
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+      <img src="${g.img}" alt="">
+      <div class="row-main">
+        <div class="row-title">Foto ${i+1}</div>
+        <div class="row-sub">${g.tall ? "Destaque (alta)" : "Normal"}</div>
+      </div>
+      <div class="row-actions"><button class="icon-btn del" data-i="${i}" title="Remover">✕</button></div>`;
+    list.appendChild(row);
+  });
+}
+document.getElementById("g-list").addEventListener("click", e=>{
+  const btn = e.target.closest(".icon-btn.del");
+  if(!btn) return;
+  DATA.gallery.splice(Number(btn.dataset.i), 1);
+  renderGalleryList();
+});
+document.getElementById("g-addBtn").addEventListener("click", ()=>{
+  const img = document.getElementById("g-img").value.trim();
+  const tall = document.getElementById("g-tall").value === "true";
+  if(!img){ showToast("Cole o link da foto primeiro."); return; }
+  DATA.gallery.push({ img, tall });
+  renderGalleryList();
+  showToast("Foto adicionada. Não esqueça de guardar.");
+  document.getElementById("g-img").value = "";
+});
+
+/* ---------------- FEEDBACKS ---------------- */
+function renderFeedbacksList(){
+  const list = document.getElementById("f-list");
+  list.innerHTML = "";
+  if(DATA.feedbacks.length === 0){ list.innerHTML = `<p class="empty-hint">Ainda não há feedbacks.</p>`; return; }
+  DATA.feedbacks.forEach((f,i)=>{
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `
+      <div class="row-main">
+        <div class="row-title">${f.name}</div>
+        <div class="row-sub">${f.role} — "${f.text.slice(0,60)}${f.text.length>60?"…":""}"</div>
+      </div>
+      <div class="row-actions"><button class="icon-btn del" data-i="${i}" title="Remover">✕</button></div>`;
+    list.appendChild(row);
+  });
+}
+document.getElementById("f-list").addEventListener("click", e=>{
+  const btn = e.target.closest(".icon-btn.del");
+  if(!btn) return;
+  DATA.feedbacks.splice(Number(btn.dataset.i), 1);
+  renderFeedbacksList();
+});
+document.getElementById("f-addBtn").addEventListener("click", ()=>{
+  const name = document.getElementById("f-name").value.trim();
+  const role = document.getElementById("f-role").value.trim();
+  const text = document.getElementById("f-text").value.trim();
+  if(!name || !text){ showToast("Preencha pelo menos o nome e o texto."); return; }
+  DATA.feedbacks.push({ name, role, text });
+  renderFeedbacksList();
+  showToast("Feedback adicionado. Não esqueça de guardar.");
+  ["f-name","f-role","f-text"].forEach(id=>document.getElementById(id).value = "");
+});
+
+/* ---------------- SAVE / EXPORT / IMPORT / RESET ---------------- */
+document.getElementById("saveBtn").addEventListener("click", ()=>{
+  collectSettingsForm();
+  localStorage.setItem("gufilia_cms_data", JSON.stringify(DATA));
+  showToast("Alterações guardadas neste navegador.");
+});
+
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  collectSettingsForm();
+  localStorage.setItem("gufilia_cms_data", JSON.stringify(DATA));
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type:"application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "data.json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("data.json exportado — substitua o ficheiro no seu site publicado.");
+});
+
+document.getElementById("importBtn").addEventListener("click", ()=>{
+  document.getElementById("importInput").click();
+});
+document.getElementById("importInput").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      DATA = parsed;
+      fillSettingsForm();
+      renderProductsList();
+      renderGalleryList();
+      renderFeedbacksList();
+      showToast("Dados importados. Clique em Guardar para aplicar.");
+    }catch(err){
+      showToast("Ficheiro inválido. Confirme que é um data.json exportado daqui.");
+    }
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(!confirm("Repor os dados para as predefinições e apagar as alterações guardadas neste navegador?")) return;
+  localStorage.removeItem("gufilia_cms_data");
+  DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  fillSettingsForm();
+  renderProductsList();
+  renderGalleryList();
+  renderFeedbacksList();
+  showToast("Predefinições repostas.");
+});
+</script>
+</body>
+</html>

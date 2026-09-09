@@ -1,0 +1,38 @@
+{
+  "settings": {
+    "whatsapp": "258876396010",
+    "heroEyebrow": "Moda & cosméticos, curados para si",
+    "heroTitle": "Peças escolhidas a dedo. Entrega combinada consigo.",
+    "heroLead": "A Gufilia.Store junta o melhor da Shein com uma seleção própria de cosméticos, e trata cada pedido diretamente consigo, no WhatsApp — sem letras pequenas, sem surpresas no valor final.",
+    "heroTag": "+250 pedidos entregues em Maputo com acompanhamento pessoal",
+    "sheinUrl": "https://www.shein.com",
+    "instagram": "https://instagram.com/gufilia_store",
+    "instagramLabel": "@gufilia_store",
+    "facebook": "https://facebook.com/gufiliastore",
+    "facebookLabel": "gufiliastore"
+  },
+  "products": [
+    { "id":"p1", "name":"Base líquida matte", "price":850, "cat":"rosto", "img":"https://placehold.co/500x650/D8C8B2/2B2B2B?text=Base", "badge":"Mais vendido", "desc":"Cobertura média a alta, acabamento matte que dura o dia todo. Ideal para peles mistas a oleosas." },
+    { "id":"p2", "name":"Paleta de sombras nude", "price":1200, "cat":"rosto", "img":"https://placehold.co/500x650/B89B5E/FFFDF9?text=Paleta", "badge":"", "desc":"12 tons neutros e versáteis, do dia a dia à noite. Alta pigmentação." },
+    { "id":"p3", "name":"Batom líquido mate", "price":450, "cat":"labios", "img":"https://placehold.co/500x650/7A7F47/FFFDF9?text=Batom", "badge":"", "desc":"Longa duração, não resseca os lábios. Disponível em vários tons." },
+    { "id":"p4", "name":"Gloss hidratante", "price":380, "cat":"labios", "img":"https://placehold.co/500x650/D8C8B2/2B2B2B?text=Gloss", "badge":"", "desc":"Brilho intenso com efeito hidratante imediato." },
+    { "id":"p5", "name":"Sérum facial vitamina C", "price":1450, "cat":"pele", "img":"https://placehold.co/500x650/2B2B2B/F7F4EF?text=S%C3%A9rum", "badge":"Novo", "desc":"Ilumina e uniformiza o tom de pele. Uso diário, manhã ou noite." },
+    { "id":"p6", "name":"Creme hidratante facial", "price":980, "cat":"pele", "img":"https://placehold.co/500x650/B89B5E/FFFDF9?text=Creme", "badge":"", "desc":"Hidratação profunda para todos os tipos de pele, textura leve." },
+    { "id":"p7", "name":"Perfume floral 50ml", "price":1600, "cat":"perfume", "img":"https://placehold.co/500x650/7A7F47/FFFDF9?text=Perfume", "badge":"", "desc":"Notas florais e amadeiradas, fixação longa." },
+    { "id":"p8", "name":"Máscara de cílios volume", "price":520, "cat":"rosto", "img":"https://placehold.co/500x650/D8C8B2/2B2B2B?text=M%C3%A1scara", "badge":"", "desc":"Volume intenso sem grumos, à prova de borrões." }
+  ],
+  "feedbacks": [
+    { "name":"Ana M.", "role":"Cliente desde 2024", "text":"Pedido chegou exatamente como combinado no WhatsApp, sem surpresas no valor. Vou voltar a comprar." },
+    { "name":"Salma J.", "role":"Cliente em Maputo", "text":"Atendimento muito atencioso, tiraram todas as minhas dúvidas antes de eu decidir. Adorei o batom!" },
+    { "name":"Fátima C.", "role":"Cliente recorrente", "text":"A entrega foi rápida e o produto veio bem embalado. Recomendo a quem procura cosméticos de qualidade." },
+    { "name":"Nilza P.", "role":"Cliente desde 2023", "text":"Já fiz três encomendas de roupa pela Shein com elas, sempre correu tudo bem do início ao fim." }
+  ],
+  "gallery": [
+    { "img":"https://placehold.co/400x520/D8C8B2/2B2B2B?text=Cliente+1", "tall":true },
+    { "img":"https://placehold.co/400x260/B89B5E/FFFDF9?text=Cliente+2", "tall":false },
+    { "img":"https://placehold.co/400x260/7A7F47/FFFDF9?text=Cliente+3", "tall":false },
+    { "img":"https://placehold.co/400x520/2B2B2B/F7F4EF?text=Cliente+4", "tall":true },
+    { "img":"https://placehold.co/400x260/D8C8B2/2B2B2B?text=Cliente+5", "tall":false },
+    { "img":"https://placehold.co/400x260/B89B5E/FFFDF9?text=Cliente+6", "tall":false }
+  ]
+}
